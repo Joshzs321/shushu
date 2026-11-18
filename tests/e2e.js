@@ -58,17 +58,67 @@ async function runFlow(browser, name, viewport) {
 
   const steps = {
     'p-film': async () => {
-      const count = await page.evaluate(() => window.Anniv.photos.length);
-      assert.ok(count > 0, '至少要有一张照片');
-      assert.strictEqual(await page.locator('.frame').count(), count);
+      // 两排照片：第一排 / 第二排，每张都排两遍用来循环
+      const film = await page.evaluate(() => window.ANNIV_FILM_PHOTOS || { row1: [], row2: [] });
+      const total = film.row1.length + film.row2.length;
+      assert.ok(total > 0, '第二页至少要有一张照片');
+      const counts = await page.evaluate(() => ['stripA', 'stripB'].map(
+        (id) => document.getElementById(id).querySelectorAll('.frame').length));
+      [film.row1.length, film.row2.length].forEach((rowTotal, index) => {
+        assert.ok(rowTotal > 0, `第 ${index + 1} 排至少要有照片`);
+        assert.ok(counts[index] >= rowTotal * 2, `第 ${index + 1} 排的照片至少排两遍，循环才接得上`);
+        assert.strictEqual(counts[index] % rowTotal, 0, `第 ${index + 1} 排排的是整组照片的整数遍`);
+      });
+      // 一整圈要够长，滚到一半才不会露出底
+      const loops = await page.evaluate(() => ['stripA', 'stripB'].map((id) => {
+        const strip = document.getElementById(id);
+        const track = strip.querySelector('.strip-track');
+        return { strip: strip.clientWidth, track: track.offsetWidth };
+      }));
+      loops.forEach((loop, index) => {
+        assert.ok(loop.track >= loop.strip, `第 ${index + 1} 排一整圈要比一屏长`);
+      });
       await shot('film');
-      await page.locator('#stripA .frame').first().click();
+
+      // 鼠标停在这一排上，这一排就要停住（照片一直在动，不能用 locator.hover）
+      const strip = await page.locator('#stripA').boundingBox();
+      const hoverX = strip.x + strip.width * 0.4;
+      const hoverY = strip.y + strip.height * 0.5;
+      await page.mouse.move(hoverX, hoverY);
+      await page.waitForTimeout(350);
+      assert.strictEqual(
+        await page.evaluate(() => getComputedStyle(document.querySelector('#stripA .strip-reel')).animationPlayState),
+        'paused', '鼠标停在照片上，这一排就不滚了');
+
+      // 停稳之后点鼠标底下的那一格，打开这一排的原图
+      const target = await page.evaluate(([x, y]) => {
+        const stripEl = document.getElementById('stripA');
+        const s = stripEl.getBoundingClientRect();
+        let best = null;
+        let bestDx = 1e9;
+        for (const frame of stripEl.querySelectorAll('.frame')) {
+          const r = frame.getBoundingClientRect();
+          const cx = r.left + r.width / 2;
+          const cy = r.top + r.height / 2;
+          if (cx < 20 || cx > window.innerWidth - 20) continue;
+          if (cx < s.left || cx > s.right) continue;
+          if (Math.abs(cy - y) > r.height / 2) continue;
+          const dx = Math.abs(cx - x);
+          if (dx < bestDx) { bestDx = dx; best = { x: cx, y: cy, caption: frame.getAttribute('aria-label') }; }
+        }
+        return best;
+      }, [hoverX, hoverY]);
+      assert.ok(target, '鼠标底下应该正好有一格照片');
+      await page.mouse.click(target.x, target.y);
       assert.strictEqual(await page.isVisible('#lightbox'), true);
       await page.waitForFunction(() => document.getElementById('lbImg').naturalWidth > 0);
+      assert.ok(/film\/r1-\d+-full\.jpg$/.test(await page.evaluate(() => document.getElementById('lbImg').src)),
+        '点开的是这一排的原图');
       await page.waitForTimeout(500);
       await shot('film-lightbox');
       await page.keyboard.press('Escape');
       assert.strictEqual(await page.isVisible('#lightbox'), false);
+      await page.mouse.move(10, 10);   // 鼠标挪开，这一排接着滚
     },
 
     // 大富翁：一直掷到走完一圈，每件事要按顺序都出现

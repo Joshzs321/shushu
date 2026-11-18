@@ -62,25 +62,25 @@
           </g>
         </svg>
       </button>
-      <p class="hint" id="cameraHint">按一下快门，洗一张我们</p>
+      <p class="hint" id="cameraHint">按一下快门，洗一张我们的照片吧</p>
     </div>
   </section>
 
   <!-- 2 胶卷 -->
   <section class="page page-film" id="p-film" data-title="胶卷" aria-labelledby="h-film">
     <header class="page-head">
-      <h2 id="h-film">这一年，拍下的你和我</h2>
-      <p class="sub">左右拖动胶卷，点一格放大</p>
+      <h2 id="h-film">和你在一起的每天，都想认真记录下来</h2>
+      <p class="sub">照片慢慢过片，鼠标停一下就停住；点一张看原图</p>
     </header>
-    <div class="strip strip-a" id="stripA" tabindex="0" aria-label="胶卷第一条"></div>
-    <div class="strip strip-b" id="stripB" tabindex="0" aria-label="胶卷第二条"></div>
+    <div class="strip strip-a" id="stripA" role="group" aria-label="胶卷第一排"></div>
+    <div class="strip strip-b" id="stripB" role="group" aria-label="胶卷第二排"></div>
   </section>
 
   <!-- 大富翁：我们这一路 -->
   <section class="page page-board" id="p-board" data-title="大富翁" aria-labelledby="h-board">
     <header class="page-head">
-      <h2 id="h-board">我们这一路</h2>
-      <p class="sub">掷骰子往前走，每一站都是我们的事</p>
+      <h2 id="h-board">三个月原来已经发生这么多故事</h2>
+      <p class="sub">掷骰子往前走，每一站都是我们的回忆</p>
     </header>
     <div class="iso-stage"><div class="iso-board" id="isoBoard" aria-hidden="true"></div></div>
     <div class="board-hud">
@@ -181,7 +181,7 @@
       <figure class="finale-photo">
         <canvas id="mosaic" width="640" height="480" aria-hidden="true"></canvas>
         <img id="finalePhoto" alt="我们的合照" width="640" height="480">
-        <figcaption><span class="tag tag-game">▦ 游戏的像素</span><span class="tag tag-live">● 演出的灯</span></figcaption>
+        <figcaption><span class="tag tag-game">▦ 游戏的像素</span></figcaption>
       </figure>
       <div class="letter">
         <h2 id="h-finale">拼起来，是我们</h2>
@@ -214,7 +214,9 @@
 </nav>
 
 <script src="js/config.js"></script>
+<script src="js/cover-photos.js"></script>
 <script src="js/mosaic-data.js"></script>
+<script src="js/film-photos.js"></script>
 <script src="js/logic.js"></script>
 <script src="js/game-core.js"></script>
 <script src="js/board-core.js"></script>

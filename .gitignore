@@ -1,0 +1,3 @@
+# 本地跑截图测试用的依赖，不提交
+.tools/
+node_modules/

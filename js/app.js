@@ -250,12 +250,15 @@
   /* ---------- 照片放大 ---------- */
   var lbIndex = 0;
   var lbOpener = null;
+  var lbList = photos;   // 当前放大的是哪一组照片（第二页的胶卷会换成它自己那组）
 
   function showLightbox(index) {
-    lbIndex = (index + photos.length) % photos.length;
-    $('lbImg').src = photos[lbIndex].full;
-    $('lbImg').alt = photos[lbIndex].caption || '我们的照片';
-    $('lbCap').textContent = photos[lbIndex].caption;
+    if (!lbList.length) return;
+    lbIndex = (index + lbList.length) % lbList.length;
+    var photo = lbList[lbIndex];
+    $('lbImg').src = photo.full;
+    $('lbImg').alt = photo.caption || '我们的照片';
+    $('lbCap').textContent = photo.caption || '';
   }
   function setBackgroundInert(isInert) {
     $('book').inert = isInert;
@@ -268,6 +271,11 @@
     $('lightbox').hidden = false;
     $('lbClose').focus();
     sfx('pop');
+  }
+  /** 换一组照片放大：第二页的每一排各是一组，左右键就在这组里翻。 */
+  function openGallery(list, index, opener) {
+    lbList = (list && list.length) ? list : photos;
+    openLightbox(index, opener);
   }
   function closeLightbox() {
     $('lightbox').hidden = true;
@@ -300,6 +308,7 @@
     onLeave: function (id, fn) { on(leaveHandlers, id, fn); },
     currentPageId: function () { return pages[current].id; },
     openLightbox: openLightbox,
+    openGallery: openGallery,
   };
 
   render();

@@ -41,16 +41,27 @@
 
 .shots { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
 .shot {
-  position: absolute; width: clamp(96px, 13vw, 176px);
+  --pad: 8px;
+  position: absolute; width: clamp(110px, 15vw, 210px); padding: var(--pad);
   transform: rotate(var(--r));
-  animation: develop 1s var(--ease-out) backwards;
+  animation: develop .9s var(--ease-out) backwards;
 }
 .shot img { aspect-ratio: 1; }
-.shot figcaption { font-size: clamp(.85rem, .6vw + .7rem, 1.2rem); }
-.shot.slot-0 { left: 7%; top: 46%; --r: -9deg; }
-.shot.slot-1 { right: 7%; top: 42%; --r: 7deg; }
-.shot.slot-2 { left: 5%; top: 9%; --r: 6deg; }
-.shot.slot-3 { right: 5%; top: 8%; --r: -6deg; }
+/* 照片名字：写成一小条贴在照片上，靠画面中间的那个上角
+   （左边出现的照片贴右上角，右边出现的照片贴左上角） */
+.shot .shot-name {
+  position: absolute; top: calc(var(--pad) + 1px); z-index: 1;
+  max-width: calc(100% - var(--pad) * 2 - 8px);
+  padding: .06em .42em .02em; border-radius: 2px;
+  background: rgba(255, 250, 233, .94); color: var(--ink);
+  font-family: var(--font-hand); font-size: clamp(.78rem, .42vw + .7rem, 1.05rem);
+  line-height: 1.12; text-align: center;
+  text-wrap: balance; overflow-wrap: anywhere;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+  transform: rotate(-2.5deg);
+}
+.shot.is-left .shot-name { right: calc(var(--pad) + 1px); }
+.shot.is-right .shot-name { left: calc(var(--pad) + 1px); transform: rotate(2.5deg); }
 @keyframes develop {
   0% { opacity: 0; transform: translateY(40px) scale(.5) rotate(0deg); filter: brightness(3) saturate(0); }
   45% { opacity: 1; filter: brightness(1.8) saturate(.2); }
@@ -64,20 +75,30 @@
 }
 .strip {
   --frame-h: clamp(110px, 21vh, 210px);
-  flex: none; width: 108%; display: flex; gap: 12px; padding: 30px 6vw;
-  overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; cursor: grab;
+  flex: none; width: 108%; padding: 30px 0;
+  overflow: hidden; cursor: default;
   background-color: var(--film);
   background-image:
     repeating-linear-gradient(90deg, transparent 0 10px, #f1e3c8 10px 24px, transparent 24px 34px),
     repeating-linear-gradient(90deg, transparent 0 10px, #f1e3c8 10px 24px, transparent 24px 34px);
   background-size: 34px 13px; background-repeat: repeat-x;
-  background-position: 0 8px, 0 calc(100% - 8px); background-attachment: local;
+  background-position: 0 8px, 0 calc(100% - 8px);
   box-shadow: 0 18px 40px rgba(0, 0, 0, .55);
 }
-.strip::-webkit-scrollbar { display: none; }
-.strip.is-drag { cursor: grabbing; }
+/* 照片连着排两遍，整条胶卷平移半圈就接上了，看起来是无限循环 */
+.strip-reel { display: flex; width: max-content; animation: film-scroll var(--dur, 60s) linear infinite; }
+.strip-track { display: flex; gap: 12px; padding-right: 12px; }
+/* 鼠标停在照片上（或者键盘选中）就停住这一排；第二排反着滚 */
+.strip:hover .strip-reel,
+.strip:focus-within .strip-reel,
+.strip.is-paused .strip-reel { animation-play-state: paused; }
+.strip-b .strip-reel { animation-direction: reverse; }
 .strip-a { transform: rotate(-2deg); }
 .strip-b { transform: rotate(1.5deg); }
+@keyframes film-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
 .frame {
   flex: none; position: relative; height: var(--frame-h); aspect-ratio: 4 / 5;
   border-radius: 3px; overflow: hidden; background: #000;
@@ -85,14 +106,22 @@
 }
 .frame img {
   width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none;
-  filter: sepia(.35) saturate(.85) contrast(1.05); transition: filter .3s, transform .5s var(--ease-out);
+  filter: brightness(1.14) saturate(1.02) sepia(.12) contrast(1);
+  transition: filter .3s, transform .5s var(--ease-out);
 }
 .frame::after {
-  content: attr(data-no); position: absolute; left: 5px; bottom: 3px;
-  font: 700 .62rem var(--font-pixel); color: #ffb347; letter-spacing: .08em; text-shadow: 0 0 3px #000;
+  content: attr(data-name); position: absolute; left: 4px; bottom: 4px;
+  max-width: calc(100% - 8px); padding: 1px 4px; border-radius: 3px;
+  background: rgba(12, 8, 6, .55);
+  font-family: var(--font-hand); font-size: clamp(.68rem, .4vw + .54rem, .82rem);
+  line-height: 1.1; color: #fff3d8; letter-spacing: .02em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+  pointer-events: none;
 }
+.frame[data-name='']::after { display: none; }
 .frame:hover, .frame:focus-visible { transform: translateY(-6px) scale(1.04); z-index: 2; }
-.frame:hover img, .frame:focus-visible img { filter: none; transform: scale(1.06); }
+.frame:hover img, .frame:focus-visible img { filter: brightness(1.2) saturate(1.06); transform: scale(1.06); }
 
 /* ========== 3 小餐桌 ========== */
 .page-table {
@@ -280,8 +309,6 @@
   .letter p { margin-bottom: .35em; line-height: 1.35; }
 }
 @media (max-width: 560px) {
-  .shot.slot-0 { left: 3%; top: 67%; } .shot.slot-1 { right: 3%; top: 66%; }
-  .shot.slot-2 { left: 3%; top: 3%; } .shot.slot-3 { right: 3%; top: 4%; }
   .strip { --frame-h: clamp(110px, 20vh, 180px); }
   .console { width: min(94vw, calc((100dvh - 300px) * 400 / 224)); }
 }
@@ -296,7 +323,7 @@
   .page-cover h1 { font-size: 3rem; }
   .camera { width: 110px; margin-top: 4px; }
   .hint { margin-top: .2em; }
-  .strip { --frame-h: 78px; padding: 22px 6vw; }
+  .strip { --frame-h: 78px; padding: 22px 0; }
   .table { --size: min(86vw, calc(100dvh - 170px)); }
   .say { font-size: 1.1rem; }
   .finale-wrap { flex-direction: row; overflow: visible; }
