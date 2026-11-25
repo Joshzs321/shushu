@@ -280,6 +280,57 @@
 .pad-btn.is-down { transform: translateY(4px); box-shadow: 0 1px 0 #0b0d1c; }
 .pad-jump { width: 88px; background: var(--tomato); font-family: var(--font-title); border-radius: 28px; }
 
+/* ========== 相册 ========== */
+.page-album {
+  background: #1e2238 radial-gradient(70% 60% at 50% 30%, #2e3458, transparent 80%);
+  color: var(--paper);
+  overflow-y: auto;
+}
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 960px;
+  padding: 4px 4px var(--pager-h);
+  align-content: start;
+}
+.album-grid .album-item {
+  position: relative;
+  margin: 0;
+  padding: 6px 6px 0;
+  background: #fffdf6;
+  border-radius: 4px;
+  box-shadow: 0 1px 0 rgba(0,0,0,.2), 0 8px 18px rgba(0,0,0,.35);
+  transform: rotate(var(--rot, 0deg));
+  transition: transform .25s var(--ease-back), box-shadow .25s;
+  cursor: pointer;
+}
+.album-grid .album-item:nth-child(odd) { --rot: -1.5deg; }
+.album-grid .album-item:nth-child(even) { --rot: 1.2deg; }
+.album-grid .album-item:hover, .album-grid .album-item:focus-visible {
+  transform: rotate(0deg) translateY(-5px) scale(1.04);
+  box-shadow: 0 1px 0 rgba(0,0,0,.2), 0 16px 32px rgba(0,0,0,.45);
+  z-index: 2;
+}
+.album-grid .album-item img {
+  display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+  background: #ddd; border-radius: 2px;
+}
+.album-grid .album-item figcaption {
+  font-family: var(--font-hand); color: var(--ink); text-align: center;
+  font-size: clamp(.72rem, .6vw + .6rem, .92rem); line-height: 1.1;
+  padding: .3em 0 .36em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+@media (max-width: 560px) {
+  .album-grid { grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: 10px; }
+}
+@media (max-height: 460px) {
+  .page-album .page-head { display: none; }
+}
+
 /* ========== 6 结尾 ========== */
 .page-finale { background: #100d1f radial-gradient(70% 60% at 30% 40%, #2b2350, transparent); color: var(--paper); }
 .finale-wrap { display: flex; align-items: center; justify-content: center; gap: clamp(18px, 4vw, 56px); width: 100%; max-width: 1240px; min-height: 0; }

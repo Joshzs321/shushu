@@ -158,6 +158,15 @@
     </div>
   </section>
 
+  <!-- 相册：所有照片汇总，点一张看原图 -->
+  <section class="page page-album" id="p-album" data-title="相册" aria-labelledby="h-album">
+    <header class="page-head">
+      <h2 id="h-album">把每一个瞬间，都收进相册里</h2>
+      <p class="sub">点一张照片看原图，左右键翻看</p>
+    </header>
+    <div class="album-grid" id="albumGrid" role="list" aria-label="相册照片"></div>
+  </section>
+
   <!-- 唱片机：换一张唱片（文字由 js/vinyl.js 按 config.music 填入） -->
   <section class="page page-vinyl" id="p-vinyl" data-title="唱片机" aria-labelledby="h-vinyl">
     <button type="button" class="deck" id="deck">
@@ -224,6 +233,7 @@
 <script src="js/scenes.js"></script>
 <script src="js/game.js"></script>
 <script src="js/board.js"></script>
+<script src="js/album.js"></script>
 <script src="js/vinyl.js"></script>
 <script src="js/finale.js"></script>
 </body>
